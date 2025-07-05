@@ -191829,17 +191829,26 @@ var utils = __nccwpck_require__(20844);
 const s3CacheFixed = {
     ...cache,
     isFeatureAvailable() {
-        return process.env.SWATINEM_RUST_CACHE_S3_BUCKET != undefined;
+        if (process.env.SWATINEM_RUST_CACHE_S3_BUCKET != undefined) {
+            core.warning("`SWATINEM_RUST_CACHE_S3_BUCKET` environment variable is not set");
+            return false;
+        }
+        return true;
     },
     restoreCache: async (paths, primaryKey, restoreKeys, _options, _enableCrossOsArchive) => {
         let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
-        await cache.restoreCache(paths, primaryKey, restoreKeys || [], bucketName, (0,utils/* newS3Client */.ai)());
-        return `${primaryKey}/${bucketName}`;
+        if (restoreKeys != undefined) {
+            await cache.restoreCache(paths, primaryKey, restoreKeys, bucketName, (0,utils/* newS3Client */.ai)());
+            return `${bucketName}-${primaryKey}`;
+        }
+        else {
+            return undefined;
+        }
     },
     saveCache: async (paths, key) => {
         let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
         await cache.saveCache(paths, key, bucketName, (0,utils/* newS3Client */.ai)());
-        return `${key}/${bucketName}`;
+        return `${bucketName}-${key}`;
     }
 };
 function reportError(e) {

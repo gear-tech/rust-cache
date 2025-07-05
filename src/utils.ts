@@ -19,13 +19,17 @@ const s3CacheFixed = {
   },
   restoreCache: async (paths: string[], primaryKey: string, restoreKeys?: string[], _options?: DownloadOptions, _enableCrossOsArchive?: boolean): Promise<string | undefined> => {
     let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
-    await s3Cache.restoreCache(paths, primaryKey, restoreKeys || [], bucketName, newS3Client());
-    return `${bucketName}-${primaryKey}`
+    if (restoreKeys != undefined) {
+      await s3Cache.restoreCache(paths, primaryKey, restoreKeys, bucketName, newS3Client());
+      return `${bucketName}-${primaryKey}`;
+    } else {
+      return undefined;
+    }
   },
   saveCache: async (paths: string[], key: string): Promise<string | number> => {
     let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
     await s3Cache.saveCache(paths, key, bucketName, newS3Client());
-    return `${bucketName}-${key}`
+    return `${bucketName}-${key}`;
   }
 }
 
