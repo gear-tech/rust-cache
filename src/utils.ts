@@ -2,8 +2,28 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as buildjetCache from "@actions/buildjet-cache";
 import * as warpbuildCache from "@actions/warpbuild-cache";
+import * as s3Cache from "@itchyny/s3-cache-action";
 import * as ghCache from "@actions/cache";
 import fs from "fs";
+import { newS3Client } from "@itchyny/s3-cache-action/lib/utils";
+import {DownloadOptions} from "@actions/cache/lib/options";
+
+const s3CacheFixed = {
+  ...s3Cache,
+  isFeatureAvailable(): boolean {
+    return process.env.SWATINEM_RUST_CACHE_S3_BUCKET != undefined;
+  },
+  restoreCache: async (paths: string[], primaryKey: string, restoreKeys?: string[], _options?: DownloadOptions, _enableCrossOsArchive?: boolean): Promise<string | undefined> => {
+    let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
+    await s3Cache.restoreCache(paths, primaryKey, restoreKeys || [], bucketName, newS3Client());
+    return `${primaryKey}/${bucketName}`
+  },
+  saveCache: async (paths: string[], key: string): Promise<string | number> => {
+    let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
+    await s3Cache.saveCache(paths, key, bucketName, newS3Client());
+    return `${key}/${bucketName}`
+  }
+}
 
 export function reportError(e: any) {
   const { commandFailed } = e;
@@ -68,6 +88,9 @@ export function getCacheProvider(): CacheProvider {
       break;
     case "warpbuild":
       cache = warpbuildCache;
+      break;
+    case "s3":
+      cache = s3CacheFixed;
       break;
     default:
       throw new Error(`The \`cache-provider\` \`${cacheProvider}\` is not valid.`);
