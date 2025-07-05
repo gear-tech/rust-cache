@@ -11,20 +11,15 @@ import {DownloadOptions} from "@actions/cache/lib/options";
 const s3CacheFixed = {
   ...s3Cache,
   isFeatureAvailable(): boolean {
-    if (process.env.SWATINEM_RUST_CACHE_S3_BUCKET == undefined) {
-      core.warning("`SWATINEM_RUST_CACHE_S3_BUCKET` environment variable is not set");
-      return false;
-    }
     return true;
   },
   restoreCache: async (paths: string[], primaryKey: string, restoreKeys?: string[], _options?: DownloadOptions, _enableCrossOsArchive?: boolean): Promise<string | undefined> => {
     let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
-    if (restoreKeys != undefined) {
-      await s3Cache.restoreCache(paths, primaryKey, restoreKeys, bucketName, newS3Client());
-      return `${bucketName}-${primaryKey}`;
-    } else {
+    if (restoreKeys == undefined) {
       return undefined;
     }
+    await s3Cache.restoreCache(paths, primaryKey, restoreKeys, bucketName, newS3Client());
+    return `${bucketName}-${primaryKey}`;
   },
   saveCache: async (paths: string[], key: string): Promise<string | number> => {
     let bucketName = process.env.SWATINEM_RUST_CACHE_S3_BUCKET || process.exit("`SWATINEM_RUST_CACHE_S3_BUCKET` is not set");
