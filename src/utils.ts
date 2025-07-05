@@ -11,10 +11,6 @@ import {DownloadOptions} from "@actions/cache/lib/options";
 const s3CacheFixed = {
   ...s3Cache,
   isFeatureAvailable(): boolean {
-    if (process.env.SWATINEM_RUST_CACHE_S3_BUCKET == undefined) {
-      core.warning("`SWATINEM_RUST_CACHE_S3_BUCKET` environment variable is not set");
-      return false;
-    }
     return true;
   },
   restoreCache: async (paths: string[], primaryKey: string, restoreKeys?: string[], _options?: DownloadOptions, _enableCrossOsArchive?: boolean): Promise<string | undefined> => {
