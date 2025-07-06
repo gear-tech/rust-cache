@@ -24,7 +24,7 @@
   "dependencies": {
     "@actions/buildjet-cache": "npm:github-actions.cache-buildjet@0.2.0",
     "@actions/warpbuild-cache": "npm:github-actions.warp-cache@1.4.5",
-    "@itchyny/s3-cache-action": "^1.1.4",
+    "@runs-on/cache": "github:runs-on/cache#v4",
     "@actions/cache": "^4.0.0",
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
