@@ -17,9 +17,5 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true
   },
-  "include": [
-    "src",
-    "runs_on_cache.d.ts"
-  ],
-  "exclude": ["dist"]
+  "exclude": ["dist", "runs-on-cache"]
 }

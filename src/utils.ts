@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as buildjetCache from "@actions/buildjet-cache";
 import * as warpbuildCache from "@actions/warpbuild-cache";
-import * as s3Cache from "@runs-on/cache";
+import * as s3Cache from "cache";
 import * as ghCache from "@actions/cache";
 import fs from "fs";
 
@@ -71,7 +71,7 @@ export function getCacheProvider(): CacheProvider {
       cache = warpbuildCache;
       break;
     case "s3":
-      cache = s3Cache.custom;
+      cache = s3Cache;
       break;
     default:
       throw new Error(`The \`cache-provider\` \`${cacheProvider}\` is not valid.`);
