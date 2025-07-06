@@ -207032,7 +207032,7 @@ function getCacheProvider() {
             cache = warpbuild_cache_lib_cache;
             break;
         case "s3":
-            cache = restore;
+            cache = restore.custom;
             break;
         default:
             throw new Error(`The \`cache-provider\` \`${cacheProvider}\` is not valid.`);

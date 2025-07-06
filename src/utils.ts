@@ -71,7 +71,7 @@ export function getCacheProvider(): CacheProvider {
       cache = warpbuildCache;
       break;
     case "s3":
-      cache = s3Cache;
+      cache = s3Cache.custom;
       break;
     default:
       throw new Error(`The \`cache-provider\` \`${cacheProvider}\` is not valid.`);
