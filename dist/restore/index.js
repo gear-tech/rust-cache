@@ -185419,6 +185419,19 @@ async function cleanProfileTarget(profileDir, packages, checkTimestamp = false) 
         await rmExcept(profileDir, new Set(["target", "trybuild"]), checkTimestamp);
         return;
     }
+    if (external_path_default().basename(profileDir) === "wasm-projects") {
+        try {
+            cleanTargetDir(external_path_default().join(profileDir, "debug"), packages, checkTimestamp);
+        }
+        catch { }
+        try {
+            cleanTargetDir(external_path_default().join(profileDir, "release"), packages, checkTimestamp);
+        }
+        catch { }
+        // Delete everything else.
+        await rmExcept(profileDir, new Set(["debug", "release"]), checkTimestamp);
+        return;
+    }
     let keepProfile = new Set(["build", ".fingerprint", "deps"]);
     await rmExcept(profileDir, keepProfile);
     const keepPkg = new Set(packages.map((p) => p.name));

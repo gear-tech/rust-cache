@@ -55,6 +55,20 @@ async function cleanProfileTarget(profileDir: string, packages: Packages, checkT
     return;
   }
 
+  if (path.basename(profileDir) === "wasm-projects") {
+    try {
+      cleanTargetDir(path.join(profileDir, "debug"), packages, checkTimestamp);
+    } catch {}
+    try {
+      cleanTargetDir(path.join(profileDir, "release"), packages, checkTimestamp);
+    } catch {}
+
+    // Delete everything else.
+    await rmExcept(profileDir, new Set(["debug", "release"]), checkTimestamp);
+
+    return;
+  }
+
   let keepProfile = new Set(["build", ".fingerprint", "deps"]);
   await rmExcept(profileDir, keepProfile);
 
