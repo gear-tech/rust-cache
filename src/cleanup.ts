@@ -42,11 +42,11 @@ async function cleanProfileTarget(profileDir: string, packages: Packages, checkT
     try {
       // https://github.com/vertexclique/kaos/blob/9876f6c890339741cc5be4b7cb9df72baa5a6d79/src/cargo.rs#L25
       // https://github.com/eupn/macrotest/blob/c4151a5f9f545942f4971980b5d264ebcd0b1d11/src/cargo.rs#L27
-      cleanTargetDir(path.join(profileDir, "target"), packages, checkTimestamp);
+      await cleanTargetDir(path.join(profileDir, "target"), packages, checkTimestamp);
     } catch {}
     try {
       // https://github.com/dtolnay/trybuild/blob/eec8ca6cb9b8f53d0caf1aa499d99df52cae8b40/src/cargo.rs#L50
-      cleanTargetDir(path.join(profileDir, "trybuild"), packages, checkTimestamp);
+      await cleanTargetDir(path.join(profileDir, "trybuild"), packages, checkTimestamp);
     } catch {}
 
     // Delete everything else.
@@ -57,10 +57,10 @@ async function cleanProfileTarget(profileDir: string, packages: Packages, checkT
 
   if (path.basename(profileDir) === "wasm-projects") {
     try {
-      cleanTargetDir(path.join(profileDir, "debug"), packages, checkTimestamp);
+      await cleanTargetDir(path.join(profileDir, "debug"), packages, checkTimestamp);
     } catch {}
     try {
-      cleanTargetDir(path.join(profileDir, "release"), packages, checkTimestamp);
+      await cleanTargetDir(path.join(profileDir, "release"), packages, checkTimestamp);
     } catch {}
 
     // Delete everything else.
@@ -69,7 +69,7 @@ async function cleanProfileTarget(profileDir: string, packages: Packages, checkT
     return;
   }
 
-  let keepProfile = new Set(["build", ".fingerprint", "deps"]);
+  let keepProfile = new Set(["build", ".fingerprint", "deps", "wbuild"]);
   await rmExcept(profileDir, keepProfile);
 
   const keepPkg = new Set(packages.map((p) => p.name));
@@ -87,6 +87,19 @@ async function cleanProfileTarget(profileDir: string, packages: Packages, checkT
     }),
   );
   await rmExcept(path.join(profileDir, "deps"), keepDeps, checkTimestamp);
+
+  let wbuildDir = path.join(profileDir, "wbuild");
+  if (fs.existsSync(wbuildDir)) {
+    let dir = await fs.promises.opendir(wbuildDir);
+    for await (const dirent of dir) {
+      if (!dirent.isDirectory()) {
+        continue;
+      }
+
+      let runtimeDir = path.join(dir.path, dirent.name, "target");
+      await cleanTargetDir(runtimeDir, packages, checkTimestamp);
+    }
+  }
 }
 
 export async function getCargoBins(): Promise<Set<string>> {

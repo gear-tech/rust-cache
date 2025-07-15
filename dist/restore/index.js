@@ -185407,12 +185407,12 @@ async function cleanProfileTarget(profileDir, packages, checkTimestamp = false) 
         try {
             // https://github.com/vertexclique/kaos/blob/9876f6c890339741cc5be4b7cb9df72baa5a6d79/src/cargo.rs#L25
             // https://github.com/eupn/macrotest/blob/c4151a5f9f545942f4971980b5d264ebcd0b1d11/src/cargo.rs#L27
-            cleanTargetDir(external_path_default().join(profileDir, "target"), packages, checkTimestamp);
+            await cleanTargetDir(external_path_default().join(profileDir, "target"), packages, checkTimestamp);
         }
         catch { }
         try {
             // https://github.com/dtolnay/trybuild/blob/eec8ca6cb9b8f53d0caf1aa499d99df52cae8b40/src/cargo.rs#L50
-            cleanTargetDir(external_path_default().join(profileDir, "trybuild"), packages, checkTimestamp);
+            await cleanTargetDir(external_path_default().join(profileDir, "trybuild"), packages, checkTimestamp);
         }
         catch { }
         // Delete everything else.
@@ -185421,18 +185421,18 @@ async function cleanProfileTarget(profileDir, packages, checkTimestamp = false) 
     }
     if (external_path_default().basename(profileDir) === "wasm-projects") {
         try {
-            cleanTargetDir(external_path_default().join(profileDir, "debug"), packages, checkTimestamp);
+            await cleanTargetDir(external_path_default().join(profileDir, "debug"), packages, checkTimestamp);
         }
         catch { }
         try {
-            cleanTargetDir(external_path_default().join(profileDir, "release"), packages, checkTimestamp);
+            await cleanTargetDir(external_path_default().join(profileDir, "release"), packages, checkTimestamp);
         }
         catch { }
         // Delete everything else.
         await rmExcept(profileDir, new Set(["debug", "release"]), checkTimestamp);
         return;
     }
-    let keepProfile = new Set(["build", ".fingerprint", "deps"]);
+    let keepProfile = new Set(["build", ".fingerprint", "deps", "wbuild"]);
     await rmExcept(profileDir, keepProfile);
     const keepPkg = new Set(packages.map((p) => p.name));
     await rmExcept(external_path_default().join(profileDir, "build"), keepPkg, checkTimestamp);
@@ -185446,6 +185446,17 @@ async function cleanProfileTarget(profileDir, packages, checkTimestamp = false) 
         return names;
     }));
     await rmExcept(external_path_default().join(profileDir, "deps"), keepDeps, checkTimestamp);
+    let wbuildDir = external_path_default().join(profileDir, "wbuild");
+    if (external_fs_default().existsSync(wbuildDir)) {
+        let dir = await external_fs_default().promises.opendir(wbuildDir);
+        for await (const dirent of dir) {
+            if (!dirent.isDirectory()) {
+                continue;
+            }
+            let runtimeDir = external_path_default().join(dir.path, dirent.name, "target");
+            await cleanTargetDir(runtimeDir, packages, checkTimestamp);
+        }
+    }
 }
 async function getCargoBins() {
     const bins = new Set();
