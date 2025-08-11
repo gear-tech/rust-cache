@@ -40,6 +40,10 @@ inputs:
     description: "Determiners whether the cache should be saved. If `false`, the cache is only restored."
     required: false
     default: "true"
+  restore-if:
+    description: "Determines whether the cache should be restored. If `false`, the cache is not restored."
+    required: false
+    default: "true"
   cache-provider:
     description: "Determines which provider to use for caching. Options are github, buildjet, or warpbuild. Defaults to github."
     required: false

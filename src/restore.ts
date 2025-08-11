@@ -14,7 +14,9 @@ process.on("uncaughtException", (e) => {
 async function run() {
   const cacheProvider = getCacheProvider();
 
-  if (!cacheProvider.cache.isFeatureAvailable()) {
+  const restore = core.getInput("restore-if").toLowerCase() || "true";
+
+  if (!cacheProvider.cache.isFeatureAvailable() && restore === "true") {
     setCacheHitOutput(false);
     return;
   }

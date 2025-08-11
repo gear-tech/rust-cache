@@ -76,6 +76,14 @@ sensible defaults.
     save-if: ${{ github.ref == 'refs/heads/master' }}
 
     # Determines whether the cache should be restored.
+    # If `false`, the cache is not restored.
+    # Useful when only runs from pull requests should be restored from the cache.
+    # default: "true"
+    restore-if: ""
+    # To only restore runs from pull requests:
+    restore-if: ${{ github.ref != 'refs/heads/master' }}
+
+    # Determines whether the cache should be restored.
     # If `true` the cache key will be checked and the `cache-hit` output will be set
     # but the cache itself won't be restored
     # default: "false"
