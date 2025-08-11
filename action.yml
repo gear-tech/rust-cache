@@ -37,7 +37,7 @@ inputs:
     required: false
     default: "false"
   save-if:
-    description: "Determiners whether the cache should be saved. If `false`, the cache is only restored."
+    description: "Determiners whether the cache should be saved. If `false`, the cache is not saved."
     required: false
     default: "true"
   restore-if:
