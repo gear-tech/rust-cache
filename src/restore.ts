@@ -16,7 +16,7 @@ async function run() {
 
   const restore = core.getInput("restore-if").toLowerCase() || "true";
 
-  if (!cacheProvider.cache.isFeatureAvailable() && restore === "true") {
+  if (!(cacheProvider.cache.isFeatureAvailable() && restore === "true")) {
     setCacheHitOutput(false);
     return;
   }
