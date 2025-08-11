@@ -81,7 +81,7 @@ sensible defaults.
     # default: "true"
     restore-if: ""
     # To only restore runs from pull requests:
-    restore-if: ${{ github.ref != 'refs/heads/master' }}
+    restore-if: ${{ github.event_name == 'pull_request' }}
 
     # Determines whether the cache should be restored.
     # If `true` the cache key will be checked and the `cache-hit` output will be set
